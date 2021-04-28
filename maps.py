@@ -28,7 +28,6 @@ x = getBusinessData(entries[1], 1)
 listOfKeys = list(x.keys())
 
 '''
-####
 with open('www.google.com_Archive [21-04-11 10-44-37].json', "r") as read_file:
     data = json.load(read_file)
 subs = data['log']['entries'][0]['response']['content']['text']  
