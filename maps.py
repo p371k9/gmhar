@@ -10,24 +10,43 @@ def prep(body):
     body = body.replace(b'\/', b'/')
     body = bytes(body.decode('unicode_escape'), 'latin-1')
     return body       
-def getBusinessData(e, b): # e: entry, b: business index
-    ebin = prep(e.encode('utf-8'))
-    edata = json.loads(ebin.decode('utf-8'))
+def getBusinessData(b):
     return {
-        'name' :edata[0][1][b][14][11],
-        'url': edata[0][1][b][14][7][0]
+        'name' : b[14][11],
+        #'url': b[14][7][0]
     }
-def sav(jsonFileName, body):  # for testing
-    with open(jsonFileName, "wb") as f:
-        f.write(body)   
+def savEntry(jsonFileName, e):
+    ebin = prep(e.encode('utf-8'))
+    with open(jsonFileName, 'wb') as f:
+        f.write(ebin)
+
    
 harFile = 'www.google.com_Archive [21-04-11 10-44-37].json'
 entries = getEntries(harFile)
-entry = entries[0]['response']['content']['text']
-x = getBusinessData(entries[1], 1)
-listOfKeys = list(x.keys())
+for e in entries:
+    entry = e['response']['content']['text']
+    ebin = prep(entry.encode('utf-8'))
+    edata = json.loads(ebin.decode('utf-8'))
+    businesses = edata[0][1]
+    first = True
+    for business in businesses:
+        if not first:
+            print(getBusinessData(business))
+        first = False
+    #print(len(businesses))    
+    
 
-'''
+listOfKeys = list(x.keys())
+# optional
+savEntry('uj.json', entry)
+
+
+'''   
+def sav(jsonFileName, body):  # for testing
+    with open(jsonFileName, "wb") as f:
+        f.write(body)   
+
+
 with open('www.google.com_Archive [21-04-11 10-44-37].json', "r") as read_file:
     data = json.load(read_file)
 subs = data['log']['entries'][0]['response']['content']['text']  
