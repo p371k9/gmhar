@@ -1,9 +1,9 @@
 # %load_ext autoreload
 # %autoreload 2
-import json
-def getEntries(harFileName):
-    with open(harFileName, "r") as read_file:
-        data = json.load(read_file)
+import json, csv
+import sys, os, logging, argparse
+def getEntries(harH):    
+    data = json.load(harH)
     return data['log']['entries']        
 def prep(body):                
     body = body[body.find(b'\\n') + 2 : body.rfind(b'\\n')]
@@ -14,13 +14,52 @@ def getBusinessData(bu):
     d = {}
     d['name']= bu[14][11]
     try: d['url'] = bu[14][7][0]
-    except: d['url'] = ''
+    except: d['url'] = None
     return d
 def savEntry(jsonFileName, e): # Csak teszteléshez. Pgm nem hívja. 
     ebin = prep(e.encode('utf-8'))
     with open(jsonFileName, 'wb') as f:
         f.write(ebin)
-   
+def main(harFileHandler, f):    #f outfile handler
+    entries = getEntries(harFileHandler)
+    needHeader = True
+    for e in entries:
+        entry = e['response']['content']['text']
+        ebin = prep(entry.encode('utf-8'))
+        edata = json.loads(ebin.decode('utf-8'))
+        businesses = edata[0][1]
+        first = True
+        for business in businesses:
+            if not first:
+                businessData = getBusinessData(business)
+                if needHeader:                
+                    writer = csv.DictWriter(f, list(businessData.keys()))
+                    writer.writeheader()
+                    needHeader = False
+                writer.writerow(businessData)
+            first = False
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Process Google Maps HAR to .csv .')
+    parser.add_argument('har', type=argparse.FileType('r'), help='Input HAR file name for processing.')
+    parser.add_argument('outfile', nargs='?', type=argparse.FileType('w'), default=sys.stdout, help='If not specified, the output will be sent to STDOUT.')
+    parser.add_argument('--same', '-s', action="store_true", help='The name of the output file will be the same as the name of the input file, but with the extension .csv.')
+    args = parser.parse_args()
+    if args.same and args.outfile.name != '<stdout>':
+        logging.error('outfile+same')
+        exit()
+    if args.same:       
+        if os.path.splitext(args.har.name)[1] == '.csv':
+            #print("sfs")
+            logging.error('Already has a .csv file extension!')
+            exit()
+        else:
+            args.outfile = open(os.path.splitext(args.har.name)[0]+'.csv', 'w')    
+    main(args.har, args.outfile)    
+    args.har.close() 
+    args.outfile.close()
+
+'''      
 harFile = 'www.google.com_Archive [21-04-11 10-44-37].json'
 f = sys.stdout
 entries = getEntries(harFile)
@@ -48,12 +87,9 @@ listOfKeys = list(x.keys())
 # optional
 savEntry('uj.json', entry)
 
-
-'''   
 def sav(jsonFileName, body):  # for testing
     with open(jsonFileName, "wb") as f:
         f.write(body)   
-
 
 with open('www.google.com_Archive [21-04-11 10-44-37].json', "r") as read_file:
     data = json.load(read_file)
@@ -64,3 +100,5 @@ subdata = json.loads(subbin.decode('utf-8'))
 print(subdata[0][1][1][14][11])
 print(subdata[0][1][2][14][11])
 '''
+
+
