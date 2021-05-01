@@ -10,19 +10,22 @@ def prep(body):
     body = body.replace(b'\/', b'/')
     body = bytes(body.decode('unicode_escape'), 'latin-1')
     return body       
-def getBusinessData(b):
-    return {
-        'name' : b[14][11],
-        #'url': b[14][7][0]
-    }
-def savEntry(jsonFileName, e):
+def getBusinessData(bu):
+    d = {}
+    d['name']= bu[14][11]
+    try: d['url'] = bu[14][7][0]
+    except: d['url'] = ''
+    return d
+def savEntry(jsonFileName, e): # Csak teszteléshez. Pgm nem hívja. 
     ebin = prep(e.encode('utf-8'))
     with open(jsonFileName, 'wb') as f:
         f.write(ebin)
-
    
 harFile = 'www.google.com_Archive [21-04-11 10-44-37].json'
+f = sys.stdout
 entries = getEntries(harFile)
+
+needHeader = True
 for e in entries:
     entry = e['response']['content']['text']
     ebin = prep(entry.encode('utf-8'))
@@ -31,7 +34,12 @@ for e in entries:
     first = True
     for business in businesses:
         if not first:
-            print(getBusinessData(business))
+            businessData = getBusinessData(business)
+            if needHeader:                
+                writer = csv.DictWriter(f, list(businessData.keys()))
+                writer.writeheader()
+                needHeader = False
+            writer.writerow(businessData)
         first = False
     #print(len(businesses))    
     
