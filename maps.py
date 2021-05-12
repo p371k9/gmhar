@@ -2,31 +2,65 @@
 # %autoreload 2
 import json, csv
 import sys, os, logging, argparse
-def getEntries(harH):    
-    data = json.load(harH)
+
+def felt(lll, str, ret=False):
+    try:
+        sss = 'lll'+str        
+        return eval(sss)
+    except: 
+        return ret
+def getImage(b):
+    try:
+        s = b[14][72][0][0][6][0]
+        return s.split('=')[0]
+    except: 
+        return ''
+def getOpening(b):    
+    nyitva = ''; dik = 0;
+    try:
+        a = b[14][34][1]
+        for n in a:
+            nyitva += n[0] + ': ' + n[1][0] 
+            if dik <= 5:
+                nyitva += ', '
+            dik += 1
+        return str(nyitva)
+    except:
+        return ''
+def getBusinessData(bu):
+    d = {}    
+    d['name'] = bu[14][11]
+    d['address'] = bu[14][39]    
+    d['phone'] = felt(bu, '[14][178][0][0]', '')
+    d['category'] = felt(bu, '[14][13][0]', '') #csak az 1.-t írja ki.De lehet több!
+    d['rating'] = float(felt(bu, '[14][4][7]', 0))
+    d['reviews'] = felt(bu, '[14][4][8]', 0)
+    d['latlong'] = str(bu[14][9][2]) + ', ' + str(bu[14][9][3])    
+    d['placeid'] = bu[14][78]
+    d['website'] = felt(bu, '[14][7][0]', '')
+    d['claimed'] = 'no' if type(bu[14][49]) == list else 'yes'     
+    d['opening_hours'] = getOpening(bu)
+    d['image'] = getImage(bu)
+    global queryString
+    d['search_string'] = queryString
+    return d
+def getEntries(harHandl):    
+    data = json.load(harHandl)
     return data['log']['entries']        
 def prep(body):                
     body = body[body.find(b'\\n') + 2 : body.rfind(b'\\n')]
     body = body.replace(b'\/', b'/')
     body = bytes(body.decode('unicode_escape'), 'latin-1')
     return body       
-def getBusinessData(bu):
-    d = {}
-    d['name']= bu[14][11]
-    try: d['url'] = bu[14][7][0]
-    except: d['url'] = None
-    return d
-def savEntry(jsonFileName, e): # Csak teszteléshez. Pgm nem hívja. 
-    ebin = prep(e.encode('utf-8'))
-    with open(jsonFileName, 'wb') as f:
-        f.write(ebin)
-def main(harFileHandler, f):    #f outfile handler
-    entries = getEntries(harFileHandler)
+def main(harFileHandler, f):    # f=outfile handler
+    entries = getEntries(harFileHandler)  # 1 entry == 1 searchpage
+    global queryString    
     needHeader = True
     for e in entries:
         entry = e['response']['content']['text']
         ebin = prep(entry.encode('utf-8'))
         edata = json.loads(ebin.decode('utf-8'))
+        queryString = edata[0][0]
         businesses = edata[0][1]
         first = True
         for business in businesses:
@@ -38,6 +72,10 @@ def main(harFileHandler, f):    #f outfile handler
                     needHeader = False
                 writer.writerow(businessData)
             first = False
+def savEntry(jsonFileName, e): # Csak teszteléshez. Pgm nem hívja. 
+    ebin = prep(e.encode('utf-8'))
+    with open(jsonFileName, 'wb') as f:
+        f.write(ebin)            
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process Google Maps HAR to .csv .')
@@ -60,6 +98,15 @@ if __name__ == '__main__':
     args.outfile.close()
 
 '''      
+
+import maps
+mapsHandler = open('maps.json')
+import json
+entry = json.load(mapsHandler)
+businesses = entry[0][1]
+maps.getBusinessData(businesses[1])
+
+
 harFile = 'www.google.com_Archive [21-04-11 10-44-37].json'
 f = sys.stdout
 entries = getEntries(harFile)
@@ -90,6 +137,11 @@ savEntry('uj.json', entry)
 def sav(jsonFileName, body):  # for testing
     with open(jsonFileName, "wb") as f:
         f.write(body)   
+
+#def getplaceid(u):
+#    parsed =  urlparse.urlparse(u)
+#    return parse_qs(parsed.query)['placeid'][0]
+
 
 with open('www.google.com_Archive [21-04-11 10-44-37].json', "r") as read_file:
     data = json.load(read_file)
