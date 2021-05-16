@@ -12,7 +12,8 @@ def felt(lll, str, ret=False):
 def getImage(b):
     try:
         s = b[14][72][0][0][6][0]
-        return s.split('=')[0]
+        return s
+        #return s.split('=')[0]
     except: 
         return ''
 def getOpening(b):    
@@ -30,7 +31,7 @@ def getOpening(b):
 def getBusinessData(bu):
     d = {}    
     d['name'] = bu[14][11]
-    d['address'] = bu[14][39]    
+    d['address'] = bu[14][39]
     d['phone'] = felt(bu, '[14][178][0][0]', '')
     d['category'] = felt(bu, '[14][13][0]', '') #csak az 1.-t írja ki.De lehet több!
     d['rating'] = float(felt(bu, '[14][4][7]', 0))
@@ -40,7 +41,14 @@ def getBusinessData(bu):
     d['website'] = felt(bu, '[14][7][0]', '')
     d['claimed'] = 'no' if type(bu[14][49]) == list else 'yes'     
     d['opening_hours'] = getOpening(bu)
-    d['image'] = getImage(bu)
+    d['addr1'] = felt(bu, '[14][183][1][0]', '')
+    d['addr2'] = felt(bu, '[14][183][1][1]', '')
+    d['addr3'] = felt(bu, '[14][183][1][2]', '')
+    d['addr4'] = felt(bu, '[14][183][1][3]', '')
+    d['addr5'] = felt(bu, '[14][183][1][4]', '')
+    d['addr6'] = felt(bu, '[14][183][1][5]', '')
+    d['addr7'] = felt(bu, '[14][183][1][6]', '')   
+    d['thumbnail'] = getImage(bu)
     global queryString
     d['search_string'] = queryString
     return d
@@ -78,8 +86,8 @@ def savEntry(jsonFileName, e): # Csak teszteléshez. Pgm nem hívja.
         f.write(ebin)            
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Process Google Maps HAR to .csv .')
-    parser.add_argument('har', type=argparse.FileType('r'), help='Input HAR file name for processing.')
+    parser = argparse.ArgumentParser(description='Process Google Maps HAR to .csv .', epilog='.har file filterd to <search> OR <tbm> keyword.')
+    parser.add_argument('har', type=argparse.FileType('r'), help='Input HAR file name for processing. REQUIRED.')
     parser.add_argument('outfile', nargs='?', type=argparse.FileType('w'), default=sys.stdout, help='If not specified, the output will be sent to STDOUT.')
     parser.add_argument('--same', '-s', action="store_true", help='The name of the output file will be the same as the name of the input file, but with the extension .csv.')
     args = parser.parse_args()
