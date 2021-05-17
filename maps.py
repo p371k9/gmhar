@@ -1,5 +1,3 @@
-# %load_ext autoreload
-# %autoreload 2
 import json, csv
 import sys, os, logging, argparse
 
@@ -28,12 +26,24 @@ def getOpening(b):
         return str(nyitva)
     except:
         return ''
+def getCategories(b):    
+    cate = ''; dik = 0;
+    try:
+        a = b[14][13]
+        for n in a:
+            cate += n
+            if dik <= len(a) -2 :
+                cate += ', '
+            dik += 1
+        return str(cate)
+    except:
+        return ''        
 def getBusinessData(bu):
     d = {}    
     d['name'] = bu[14][11]
     d['address'] = bu[14][39]
-    d['phone'] = felt(bu, '[14][178][0][0]', '')
-    d['category'] = felt(bu, '[14][13][0]', '') #csak az 1.-t írja ki.De lehet több!
+    d['phone'] = felt(bu, '[14][178][0][0]', '')    
+    d['categories'] = getCategories(bu)
     d['rating'] = float(felt(bu, '[14][4][7]', 0))
     d['reviews'] = felt(bu, '[14][4][8]', 0)
     d['latlong'] = str(bu[14][9][2]) + ', ' + str(bu[14][9][3])    
@@ -86,7 +96,7 @@ def savEntry(jsonFileName, e): # Csak teszteléshez. Pgm nem hívja.
         f.write(ebin)            
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Process Google Maps HAR to .csv .', epilog='.har file filterd to <search> OR <tbm> keyword.')
+    parser = argparse.ArgumentParser(description='Process Google Maps HAR to .csv .', epilog='.har file filterd to <search> keyword.')
     parser.add_argument('har', type=argparse.FileType('r'), help='Input HAR file name for processing. REQUIRED.')
     parser.add_argument('outfile', nargs='?', type=argparse.FileType('w'), default=sys.stdout, help='If not specified, the output will be sent to STDOUT.')
     parser.add_argument('--same', '-s', action="store_true", help='The name of the output file will be the same as the name of the input file, but with the extension .csv.')
@@ -106,6 +116,8 @@ if __name__ == '__main__':
     args.outfile.close()
 
 '''      
+# %load_ext autoreload
+# %autoreload 2
 
 import maps
 mapsHandler = open('maps.json')
