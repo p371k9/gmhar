@@ -65,19 +65,19 @@ def getBusinessData(bu):
 def getEntries(harHandl):    
     data = json.load(harHandl)
     return data['log']['entries']        
-def prep(body):                
-    body = body[body.find(b'\\n') + 2 : body.rfind(b'\\n')]
+def prep(body):                    
+    body = body[body.find(b'\\n') + 2 : body.rfind(b'\",\"e\":')]
     body = body.replace(b'\/', b'/')
     body = bytes(body.decode('unicode_escape'), 'latin-1')
     return body       
 def main(harFileHandler, f):    # f=outfile handler
-    entries = getEntries(harFileHandler)  # 1 entry == 1 searchpage
+    entries = getEntries(harFileHandler)  # 1 entry >= 20 business == 1 searchpage
     global queryString    
     needHeader = True
     for e in entries:
         entry = e['response']['content']['text']
         ebin = prep(entry.encode('utf-8'))
-        edata = json.loads(ebin.decode('utf-8'))
+        edata = json.loads(ebin.decode('utf-8'))  #bibi
         queryString = edata[0][0]
         businesses = edata[0][1]
         first = True
@@ -90,10 +90,8 @@ def main(harFileHandler, f):    # f=outfile handler
                     needHeader = False
                 writer.writerow(businessData)
             first = False
-def savEntry(jsonFileName, e): # Csak teszteléshez. Pgm nem hívja. 
-    ebin = prep(e.encode('utf-8'))
-    with open(jsonFileName, 'wb') as f:
-        f.write(ebin)            
+            
+          
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process Google Maps HAR to .csv .', epilog='.har file filterd to <search> keyword.')
@@ -119,58 +117,23 @@ if __name__ == '__main__':
 # %load_ext autoreload
 # %autoreload 2
 
-import maps
-mapsHandler = open('maps.json')
-import json
-entry = json.load(mapsHandler)
-businesses = entry[0][1]
-maps.getBusinessData(businesses[1])
-
-
-harFile = 'www.google.com_Archive [21-04-11 10-44-37].json'
-f = sys.stdout
-entries = getEntries(harFile)
-
-needHeader = True
-for e in entries:
-    entry = e['response']['content']['text']
-    ebin = prep(entry.encode('utf-8'))
-    edata = json.loads(ebin.decode('utf-8'))
-    businesses = edata[0][1]
-    first = True
-    for business in businesses:
-        if not first:
-            businessData = getBusinessData(business)
-            if needHeader:                
-                writer = csv.DictWriter(f, list(businessData.keys()))
-                writer.writeheader()
-                needHeader = False
-            writer.writerow(businessData)
-        first = False
-    #print(len(businesses))    
+from maps import getEntries
+with open('konyvelonograd.json', "r") as harFileHandler:
+    entries = getEntries(harFileHandler)
     
-
-listOfKeys = list(x.keys())
-# optional
-savEntry('uj.json', entry)
-
-def sav(jsonFileName, body):  # for testing
-    with open(jsonFileName, "wb") as f:
-        f.write(body)   
-
-#def getplaceid(u):
-#    parsed =  urlparse.urlparse(u)
-#    return parse_qs(parsed.query)['placeid'][0]
-
-
-with open('www.google.com_Archive [21-04-11 10-44-37].json', "r") as read_file:
-    data = json.load(read_file)
-subs = data['log']['entries'][0]['response']['content']['text']  
+subs = entries[0]['response']['content']['text']  
 subbin = prep(subs.encode('utf-8'))
-#sav(subbin)
+
+# optional save subbin
+with open(FileName.json, 'wb') as f:
+    f.write(subbin)  
+
 subdata = json.loads(subbin.decode('utf-8'))
+
+# print name:
 print(subdata[0][1][1][14][11])
 print(subdata[0][1][2][14][11])
+
 '''
 
 
