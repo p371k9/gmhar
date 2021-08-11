@@ -28,4 +28,4 @@ optional arguments:
               input file, but with the extension .csv.
 ```
 
-The original idea comes from viktor0011: https://github.com/viktor0011/Google-Maps-scrape
+The original idea comes from viktor0011: https://github.com/viktor0011/Google-Maps-scrape  His youtube video: https://www.youtube.com/watch?v=9-wuyhMkl9E

@@ -90,8 +90,6 @@ def main(harFileHandler, f):    # f=outfile handler
                     needHeader = False
                 writer.writerow(businessData)
             first = False
-            
-          
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process Google Maps HAR to .csv .', epilog='.har file filterd to <search> keyword.')
@@ -113,24 +111,26 @@ if __name__ == '__main__':
     args.har.close() 
     args.outfile.close()
 
-'''      
-# %load_ext autoreload
-# %autoreload 2
+''' 
+#ipython session example 
 
-from maps import getEntries
+%load_ext autoreload
+%autoreload 2
+
+from gmhar2csv import getEntries
 with open('konyvelonograd.json', "r") as harFileHandler:
     entries = getEntries(harFileHandler)
     
 subs = entries[0]['response']['content']['text']  
 subbin = prep(subs.encode('utf-8'))
 
-# optional save subbin
+## optional save subbin
 with open(FileName.json, 'wb') as f:
     f.write(subbin)  
 
 subdata = json.loads(subbin.decode('utf-8'))
 
-# print name:
+## print name:
 print(subdata[0][1][1][14][11])
 print(subdata[0][1][2][14][11])
 
