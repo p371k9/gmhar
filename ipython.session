@@ -8,6 +8,7 @@ from gmhar2csv import getEntries
 with open('konyvelonograd.json', "r") as harFileHandler:
     entries = getEntries(harFileHandler)
     
+from gmhar2csv import prep    
 subs = entries[0]['response']['content']['text']  
 subbin = prep(subs.encode('utf-8'))
 

@@ -5,8 +5,8 @@ With some care, you can collect Google Maps business data using the Firefox brow
 ![Screenshot](screen.png)
 
 
-When you have finished crawling, you should then **filter** the XHR responses to the *search* keyword.
-Then save everything to .har format. (*"Összes mentése HAR-ként"* in English means: *"Save all as HAR"*)
+When you have finished crawling, you should then **filter** the XHR responses to the *search?* (or search?tbm ) keyword.
+Then save everything to .har format. (*"Save All As HAR"*)
 
 Finally, you can use this Python script to extract information from the *.har* file.
 
@@ -28,4 +28,4 @@ optional arguments:
               input file, but with the extension .csv.
 ```
 
-The original idea comes from viktor0011: https://github.com/viktor0011/Google-Maps-scrape  His youtube video: https://www.youtube.com/watch?v=9-wuyhMkl9E
+The idea comes from viktor0011: https://github.com/viktor0011/Google-Maps-scrape  His video: https://www.youtube.com/watch?v=9-wuyhMkl9E

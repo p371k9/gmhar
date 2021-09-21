@@ -46,7 +46,8 @@ def getBusinessData(bu):
     d['categories'] = getCategories(bu)
     d['rating'] = float(felt(bu, '[14][4][7]', 0))
     d['reviews'] = felt(bu, '[14][4][8]', 0)
-    d['latlong'] = str(bu[14][9][2]) + ', ' + str(bu[14][9][3])    
+    d['latitude'] = bu[14][9][2]
+    d['longitude'] = bu[14][9][3]
     d['placeid'] = bu[14][78]
     d['website'] = felt(bu, '[14][7][0]', '')
     d['claimed'] = 'no' if type(bu[14][49]) == list else 'yes'     
