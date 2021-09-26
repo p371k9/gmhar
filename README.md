@@ -13,8 +13,8 @@ Finally, you can use this Python script to extract information from the *.har* f
 This script has its own help:
 
 ```
-$ python gmhar2csv.py --help
-usage: gmhar2csv.py [-h] [--same] har [outfile]
+$ python gmhar.py --help
+usage: gmhar.py [-h] [--same] har [outfile]
 
 Process Google Maps HAR to .csv .
 
