@@ -4,7 +4,7 @@
 %load_ext autoreload
 %autoreload 2
 
-from gmhar2csv import getEntries
+from gmhar import getEntries
 with open('konyvelonograd.json', "r") as harFileHandler:
     entries = getEntries(harFileHandler)
     
