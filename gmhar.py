@@ -103,7 +103,6 @@ if __name__ == '__main__':
         exit()
     if args.same:       
         if os.path.splitext(args.har.name)[1] == '.csv':
-            #print("sfs")
             logging.error('Already has a .csv file extension!')
             exit()
         else:
