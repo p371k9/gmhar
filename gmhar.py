@@ -44,7 +44,7 @@ def getBusinessData(bu):
     d['address'] = bu[14][39]
     d['phone'] = felt(bu, '[14][178][0][0]', '')    
     d['categories'] = getCategories(bu)
-    d['rating'] = float(felt(bu, '[14][4][7]', 0))
+    d['rating'] = felt(bu, '[14][4][7]', float(0))
     d['reviews'] = felt(bu, '[14][4][8]', 0)
     d['latitude'] = bu[14][9][2]
     d['longitude'] = bu[14][9][3]
